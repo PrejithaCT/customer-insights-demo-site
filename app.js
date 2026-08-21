@@ -1,11 +1,9 @@
-console.log("app.js loaded");
-
 SalesforceInteractions.init({
     consents: [
         {
             provider: "Website",
-            purpose: "Tracking",
-            status: "OptIn"
+            purpose: SalesforceInteractions.ConsentPurpose.Tracking,
+            status: SalesforceInteractions.ConsentStatus.OptIn
         }
     ]
 })
@@ -13,19 +11,31 @@ SalesforceInteractions.init({
 
     console.log("Salesforce SDK initialized");
 
-    const buttons = document.querySelectorAll(".product-click");
+    console.log(
+        "Current consents:",
+        SalesforceInteractions.getConsents()
+    );
 
-    console.log("Product buttons found:", buttons.length);
+    const buttons =
+        document.querySelectorAll(".product-click");
 
-    buttons.forEach((button) => {
+    console.log(
+        "Product buttons found:",
+        buttons.length
+    );
+
+    buttons.forEach(button => {
 
         button.addEventListener("click", function () {
 
-            console.log("🔥 CLICK DETECTED");
+            const productId =
+                this.dataset.productId;
 
-            const productId = this.dataset.productId;
-            const productName = this.dataset.productName;
-            const productCategory = this.dataset.productCategory;
+            const productName =
+                this.dataset.productName;
+
+            const productCategory =
+                this.dataset.productCategory;
 
             console.log("PRODUCT CLICKED:", {
                 productId,
@@ -34,37 +44,39 @@ SalesforceInteractions.init({
             });
 
             SalesforceInteractions.sendEvent({
-
                 interaction: {
-
-                    name: SalesforceInteractions
-                        .CatalogObjectInteractionName
-                        .ViewCatalogObject,
+                    name:
+                        SalesforceInteractions
+                            .CatalogObjectInteractionName
+                            .ViewCatalogObject,
 
                     catalogObject: {
-
                         type: "Product",
-
                         id: productId,
 
                         attributes: {
                             name: productName,
                             category: productCategory
                         }
-
                     }
-
                 }
-
             });
+
+            console.log(
+                "sendEvent called for:",
+                productId
+            );
 
         });
 
     });
 
 })
-.catch((error) => {
+.catch(error => {
 
-    console.error("SDK ERROR:", error);
+    console.error(
+        "SDK ERROR:",
+        error
+    );
 
 });
