@@ -1,3 +1,5 @@
+console.log("app.js loaded");
+
 SalesforceInteractions.init({
     consents: [
         {
@@ -11,21 +13,19 @@ SalesforceInteractions.init({
 
     console.log("Salesforce SDK initialized");
 
-    const productButtons =
-        document.querySelectorAll(".product-click");
+    const buttons = document.querySelectorAll(".product-click");
 
-    productButtons.forEach(button => {
+    console.log("Product buttons found:", buttons.length);
 
-        button.addEventListener("click", () => {
+    buttons.forEach((button) => {
 
-            const productId =
-                button.dataset.productId;
+        button.addEventListener("click", function () {
 
-            const productName =
-                button.dataset.productName;
+            console.log("🔥 CLICK DETECTED");
 
-            const productCategory =
-                button.dataset.productCategory;
+            const productId = this.dataset.productId;
+            const productName = this.dataset.productName;
+            const productCategory = this.dataset.productCategory;
 
             console.log("PRODUCT CLICKED:", {
                 productId,
@@ -37,10 +37,9 @@ SalesforceInteractions.init({
 
                 interaction: {
 
-                    name:
-                        SalesforceInteractions
-                            .CatalogObjectInteractionName
-                            .ViewCatalogObject,
+                    name: SalesforceInteractions
+                        .CatalogObjectInteractionName
+                        .ViewCatalogObject,
 
                     catalogObject: {
 
@@ -49,11 +48,8 @@ SalesforceInteractions.init({
                         id: productId,
 
                         attributes: {
-
                             name: productName,
-
                             category: productCategory
-
                         }
 
                     }
@@ -67,11 +63,8 @@ SalesforceInteractions.init({
     });
 
 })
-.catch(error => {
+.catch((error) => {
 
-    console.error(
-        "Salesforce SDK initialization failed:",
-        error
-    );
+    console.error("SDK ERROR:", error);
 
 });
