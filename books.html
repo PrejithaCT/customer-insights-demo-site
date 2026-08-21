@@ -2,8 +2,13 @@
 <html>
 <head>
     <title>Books</title>
+
+    <!-- Salesforce Interactions Web SDK -->
+    <script src="https://cdn.c360a.salesforce.com/beacon/c360a/6fe98127-2f5c-4e89-a4a0-44fd9f536efd/scripts/c360a.min.js"></script>
 </head>
+
 <body>
+
     <h1>Books</h1>
 
     <nav>
@@ -17,14 +22,35 @@
 
     <div>
         <h3>Salesforce Guide Book</h3>
-        <button onclick="trackProductView('Book')">View Product</button>
+
+        <button
+            class="product-click"
+            data-product-id="BOOK-001"
+            data-product-name="Salesforce Guide Book"
+            data-product-category="Books">
+
+            View Product
+
+        </button>
     </div>
+
 
     <div>
         <h3>Data Cloud Handbook</h3>
-        <button onclick="trackProductView('Book')">View Product</button>
+
+        <button
+            class="product-click"
+            data-product-id="BOOK-002"
+            data-product-name="Data Cloud Handbook"
+            data-product-category="Books">
+
+            View Product
+
+        </button>
     </div>
 
-    <script src="script.js"></script>
+
+    <script src="app.js"></script>
+
 </body>
 </html>
