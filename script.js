@@ -1,3 +1,7 @@
+/* =========================================================
+   LOCAL DEMO TRACKING
+   ========================================================= */
+
 function getCookieId() {
     let cookieId = localStorage.getItem('cookieId');
 
@@ -48,9 +52,10 @@ function trackProductView(productCategory) {
     alert(productCategory + ' product view tracked.');
 }
 
-/* ---------------------------------
-   CONTACT FORM + SALESFORCE SDK
----------------------------------- */
+
+/* =========================================================
+   CONTACT FORM
+   ========================================================= */
 
 function submitForm(event) {
 
@@ -62,26 +67,26 @@ function submitForm(event) {
     const email =
         document.getElementById('email').value.trim();
 
-    const nameParts = fullName.split(' ');
+    const nameParts = fullName.split(/\s+/);
 
     const firstName = nameParts[0];
 
     const lastName =
         nameParts.length > 1
             ? nameParts.slice(1).join(' ')
-            : '';
+            : 'NA';
 
-    /* Existing localStorage demo data */
+
+    /* -----------------------------------------------------
+       Keep local copy for demo/debugging
+       ----------------------------------------------------- */
+
     const formSubmission = {
-
         cookieId: getCookieId(),
-
+        sessionId: getSessionId(),
         name: fullName,
-
         email: email,
-
         timestamp: new Date().toISOString()
-
     };
 
     localStorage.setItem(
@@ -97,7 +102,10 @@ function submitForm(event) {
     );
 
 
-    /* REAL SALESFORCE IDENTITY EVENT */
+    /* =====================================================
+       SALESFORCE PROFILE EVENT 1
+       IDENTITY
+       ===================================================== */
 
     SalesforceInteractions.sendEvent({
 
@@ -111,11 +119,43 @@ function submitForm(event) {
 
                 lastName: lastName,
 
-                isAnonymous: '0'
+                // 1 = known visitor
+                isAnonymous: '1'
 
-            },
+            }
 
-            identities: {
+        }
+
+    })
+    .then(() => {
+
+        console.log(
+            'Salesforce Identity event sent successfully'
+        );
+
+    })
+    .catch(error => {
+
+        console.error(
+            'Identity event failed:',
+            error
+        );
+
+    });
+
+
+    /* =====================================================
+       SALESFORCE PROFILE EVENT 2
+       CONTACT POINT EMAIL
+       ===================================================== */
+
+    SalesforceInteractions.sendEvent({
+
+        user: {
+
+            attributes: {
+
+                eventType: 'contactPointEmail',
 
                 email: email
 
@@ -123,17 +163,22 @@ function submitForm(event) {
 
         }
 
+    })
+    .then(() => {
+
+        console.log(
+            'Salesforce Contact Point Email event sent successfully'
+        );
+
+    })
+    .catch(error => {
+
+        console.error(
+            'Contact Point Email event failed:',
+            error
+        );
+
     });
-
-
-    console.log(
-        'Salesforce Identity Event Sent:',
-        {
-            firstName,
-            lastName,
-            email
-        }
-    );
 
 
     document.getElementById('message').innerText =
@@ -142,9 +187,9 @@ function submitForm(event) {
 }
 
 
-/* ---------------------------------
-   INITIALIZE SALESFORCE SDK
----------------------------------- */
+/* =========================================================
+   SALESFORCE SDK INITIALIZATION
+   ========================================================= */
 
 if (typeof SalesforceInteractions !== 'undefined') {
 
@@ -174,8 +219,11 @@ if (typeof SalesforceInteractions !== 'undefined') {
     .then(() => {
 
         console.log(
-            'Salesforce SDK initialized on Contact page'
+            'Salesforce SDK initialized'
         );
+
+
+        /* Only runs on contact.html */
 
         const contactForm =
             document.getElementById('contactForm');
@@ -202,6 +250,8 @@ if (typeof SalesforceInteractions !== 'undefined') {
 }
 
 
-/* Existing Page View tracking */
+/* =========================================================
+   PAGE VIEW - LOCAL DEMO
+   ========================================================= */
 
 trackActivity('Page View', '');
