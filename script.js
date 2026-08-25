@@ -1,5 +1,5 @@
 /* =========================================================
-   LOCAL DEMO TRACKING
+   LOCAL COOKIE / SESSION TRACKING
    ========================================================= */
 
 function getCookieId() {
@@ -24,7 +24,13 @@ function getSessionId() {
     return sessionId;
 }
 
+
+/* =========================================================
+   LOCAL ACTIVITY TRACKING
+   ========================================================= */
+
 function trackActivity(activityType, productViewed) {
+
     const activity = {
         sessionId: getSessionId(),
         cookieId: getCookieId(),
@@ -46,15 +52,27 @@ function trackActivity(activityType, productViewed) {
     console.log('Tracked Activity:', activity);
 }
 
-function trackProductView(productCategory) {
-    trackActivity('Product View', productCategory);
 
-    alert(productCategory + ' product view tracked.');
+/* =========================================================
+   OLD PRODUCT VIEW FUNCTION
+   ========================================================= */
+
+function trackProductView(productCategory) {
+
+    trackActivity(
+        'Product View',
+        productCategory
+    );
+
+    console.log(
+        'Local product view tracked:',
+        productCategory
+    );
 }
 
 
 /* =========================================================
-   CONTACT FORM
+   CONTACT FORM SUBMISSION
    ========================================================= */
 
 function submitForm(event) {
@@ -67,9 +85,14 @@ function submitForm(event) {
     const email =
         document.getElementById('email').value.trim();
 
-    const nameParts = fullName.split(/\s+/);
 
-    const firstName = nameParts[0];
+    /* Split name */
+
+    const nameParts =
+        fullName.split(/\s+/);
+
+    const firstName =
+        nameParts[0];
 
     const lastName =
         nameParts.length > 1
@@ -77,27 +100,54 @@ function submitForm(event) {
             : 'NA';
 
 
-    /* -----------------------------------------------------
-       Keep local copy for demo/debugging
-       ----------------------------------------------------- */
+    console.log(
+        'CONTACT FORM SUBMITTED:',
+        {
+            firstName,
+            lastName,
+            email
+        }
+    );
+
+
+    /* =====================================================
+       LOCAL STORAGE DEMO
+       ===================================================== */
 
     const formSubmission = {
-        cookieId: getCookieId(),
-        sessionId: getSessionId(),
-        name: fullName,
-        email: email,
-        timestamp: new Date().toISOString()
+
+        cookieId:
+            getCookieId(),
+
+        sessionId:
+            getSessionId(),
+
+        name:
+            fullName,
+
+        email:
+            email,
+
+        timestamp:
+            new Date().toISOString()
+
     };
+
 
     localStorage.setItem(
         'formSubmission',
         JSON.stringify(formSubmission)
     );
 
-    trackActivity('Form Submission', '');
+
+    trackActivity(
+        'Form Submission',
+        ''
+    );
+
 
     console.log(
-        'Form Submission:',
+        'Local Form Submission:',
         formSubmission
     );
 
@@ -107,41 +157,46 @@ function submitForm(event) {
        IDENTITY
        ===================================================== */
 
+    console.log(
+        'Sending Salesforce Identity Event...'
+    );
+
+
     SalesforceInteractions.sendEvent({
 
         user: {
 
             attributes: {
 
-                eventType: 'identity',
+                eventType:
+                    'identity',
 
-                firstName: firstName,
+                firstName:
+                    firstName,
 
-                lastName: lastName,
+                lastName:
+                    lastName,
 
-                // 1 = known visitor
-                isAnonymous: '1'
+                /*
+                   Salesforce recommended identity schema:
+
+                   0 = Anonymous
+                   1 = Known
+                */
+
+                isAnonymous:
+                    '1'
 
             }
 
         }
 
-    })
-    .then(() => {
-
-        console.log(
-            'Salesforce Identity event sent successfully'
-        );
-
-    })
-    .catch(error => {
-
-        console.error(
-            'Identity event failed:',
-            error
-        );
-
     });
+
+
+    console.log(
+        'Identity sendEvent() called'
+    );
 
 
     /* =====================================================
@@ -149,40 +204,50 @@ function submitForm(event) {
        CONTACT POINT EMAIL
        ===================================================== */
 
+    console.log(
+        'Sending Salesforce Contact Point Email Event...'
+    );
+
+
     SalesforceInteractions.sendEvent({
 
         user: {
 
             attributes: {
 
-                eventType: 'contactPointEmail',
+                eventType:
+                    'contactPointEmail',
 
-                email: email
+                email:
+                    email
 
             }
 
         }
 
-    })
-    .then(() => {
-
-        console.log(
-            'Salesforce Contact Point Email event sent successfully'
-        );
-
-    })
-    .catch(error => {
-
-        console.error(
-            'Contact Point Email event failed:',
-            error
-        );
-
     });
 
 
-    document.getElementById('message').innerText =
+    console.log(
+        'Contact Point Email sendEvent() called'
+    );
+
+
+    /* =====================================================
+       UI MESSAGE
+       ===================================================== */
+
+    document
+        .getElementById('message')
+        .innerText =
         'Form submitted successfully.';
+
+
+    /*
+       Don't reload / redirect immediately.
+
+       Give the SDK time to send the events.
+    */
 
 }
 
@@ -191,7 +256,15 @@ function submitForm(event) {
    SALESFORCE SDK INITIALIZATION
    ========================================================= */
 
-if (typeof SalesforceInteractions !== 'undefined') {
+if (
+    typeof SalesforceInteractions !==
+    'undefined'
+) {
+
+    console.log(
+        'SalesforceInteractions library found'
+    );
+
 
     SalesforceInteractions.init({
 
@@ -199,7 +272,8 @@ if (typeof SalesforceInteractions !== 'undefined') {
 
             {
 
-                provider: 'Website',
+                provider:
+                    'Website',
 
                 purpose:
                     SalesforceInteractions
@@ -223,16 +297,31 @@ if (typeof SalesforceInteractions !== 'undefined') {
         );
 
 
-        /* Only runs on contact.html */
+        /* ===============================================
+           CONTACT PAGE
+           =============================================== */
 
         const contactForm =
-            document.getElementById('contactForm');
+            document.getElementById(
+                'contactForm'
+            );
+
 
         if (contactForm) {
+
+            console.log(
+                'Contact form found'
+            );
+
 
             contactForm.addEventListener(
                 'submit',
                 submitForm
+            );
+
+
+            console.log(
+                'Contact form listener attached'
             );
 
         }
@@ -248,10 +337,20 @@ if (typeof SalesforceInteractions !== 'undefined') {
     });
 
 }
+else {
+
+    console.error(
+        'SalesforceInteractions SDK not found'
+    );
+
+}
 
 
 /* =========================================================
-   PAGE VIEW - LOCAL DEMO
+   LOCAL PAGE VIEW
    ========================================================= */
 
-trackActivity('Page View', '');
+trackActivity(
+    'Page View',
+    ''
+);
