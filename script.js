@@ -30,7 +30,6 @@ function getSessionId() {
    ========================================================= */
 
 function trackActivity(activityType, productViewed) {
-
     const activity = {
         sessionId: getSessionId(),
         cookieId: getCookieId(),
@@ -54,11 +53,10 @@ function trackActivity(activityType, productViewed) {
 
 
 /* =========================================================
-   OLD PRODUCT VIEW FUNCTION
+   OLD LOCAL PRODUCT VIEW FUNCTION
    ========================================================= */
 
 function trackProductView(productCategory) {
-
     trackActivity(
         'Product View',
         productCategory
@@ -85,9 +83,6 @@ function submitForm(event) {
     const email =
         document.getElementById('email').value.trim();
 
-
-    /* Split name */
-
     const nameParts =
         fullName.split(/\s+/);
 
@@ -111,7 +106,7 @@ function submitForm(event) {
 
 
     /* =====================================================
-       LOCAL STORAGE DEMO
+       LOCAL STORAGE COPY
        ===================================================== */
 
     const formSubmission = {
@@ -133,18 +128,15 @@ function submitForm(event) {
 
     };
 
-
     localStorage.setItem(
         'formSubmission',
         JSON.stringify(formSubmission)
     );
 
-
     trackActivity(
         'Form Submission',
         ''
     );
-
 
     console.log(
         'Local Form Submission:',
@@ -157,35 +149,19 @@ function submitForm(event) {
        IDENTITY
        ===================================================== */
 
-    console.log(
-        'Sending Salesforce Identity Event...'
-    );
-
-
     SalesforceInteractions.sendEvent({
 
         user: {
 
             attributes: {
 
-                eventType:
-                    'identity',
+                eventType: 'identity',
 
-                firstName:
-                    firstName,
+                firstName: firstName,
 
-                lastName:
-                    lastName,
+                lastName: lastName,
 
-                /*
-                   Salesforce recommended identity schema:
-
-                   0 = Anonymous
-                   1 = Known
-                */
-
-                isAnonymous:
-                    '1'
+                isAnonymous: '1'
 
             }
 
@@ -193,9 +169,8 @@ function submitForm(event) {
 
     });
 
-
     console.log(
-        'Identity sendEvent() called'
+        'Identity event sent'
     );
 
 
@@ -203,11 +178,6 @@ function submitForm(event) {
        SALESFORCE PROFILE EVENT 2
        CONTACT POINT EMAIL
        ===================================================== */
-
-    console.log(
-        'Sending Salesforce Contact Point Email Event...'
-    );
-
 
     SalesforceInteractions.sendEvent({
 
@@ -227,27 +197,43 @@ function submitForm(event) {
 
     });
 
-
     console.log(
-        'Contact Point Email sendEvent() called'
+        'Contact Point Email event sent'
     );
 
 
     /* =====================================================
-       UI MESSAGE
+       SALESFORCE ENGAGEMENT EVENT 3
+       FORM SUBMISSION
+       ===================================================== */
+
+    SalesforceInteractions.sendEvent({
+
+        eventType:
+            'formSubmission',
+
+        interaction: {
+
+            name:
+                'Form Submission'
+
+        }
+
+    });
+
+    console.log(
+        'Form Submission engagement event sent'
+    );
+
+
+    /* =====================================================
+       SUCCESS MESSAGE
        ===================================================== */
 
     document
         .getElementById('message')
         .innerText =
         'Form submitted successfully.';
-
-
-    /*
-       Don't reload / redirect immediately.
-
-       Give the SDK time to send the events.
-    */
 
 }
 
@@ -347,7 +333,7 @@ else {
 
 
 /* =========================================================
-   LOCAL PAGE VIEW
+   LOCAL PAGE VIEW TRACKING
    ========================================================= */
 
 trackActivity(
